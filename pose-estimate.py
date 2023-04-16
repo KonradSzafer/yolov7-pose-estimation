@@ -39,12 +39,11 @@ def run(poseweights="yolov7-w6-pose.pt",source="football1.mp4",device='cpu',view
     else:
         frame_width = int(cap.get(3))  #get video frame width
         frame_height = int(cap.get(4)) #get video frame height
-
         
         vid_write_image = letterbox(cap.read()[1], (frame_width), stride=64, auto=True)[0] #init videowriter
         resize_height, resize_width = vid_write_image.shape[:2]
         out_video_name = f"{source.split('/')[-1].split('.')[0]}"
-        out = cv2.VideoWriter(f"{source}_keypoint.mp4",
+        out = cv2.VideoWriter(f"{out_video_name}_keypoint.mp4",
                             cv2.VideoWriter_fourcc(*'mp4v'), 30,
                             (resize_width, resize_height))
 
