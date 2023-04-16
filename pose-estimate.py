@@ -26,12 +26,12 @@ def run(poseweights="yolov7-w6-pose.pt",source="football1.mp4",device='cpu',view
     model = attempt_load(poseweights, map_location=device)  #Load model
     _ = model.eval()
     names = model.module.names if hasattr(model, 'module') else model.names  # get class names
-   
+
     if source.isnumeric() :    
         cap = cv2.VideoCapture(int(source))    #pass video to videocapture object
     else :
         cap = cv2.VideoCapture(source)    #pass video to videocapture object
-   
+
     if (cap.isOpened() == False):   #check if videocapture not opened
         print('Error while trying to read video. Please check path again')
         raise SystemExit()
