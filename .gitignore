@@ -157,5 +157,6 @@ cython_debug/
 
 # project specific
 yolov7-w6-pose.pt
-videos
+videos/
+videos_keypoints/
 FPS_and_Time_Comparision_pose_estimate.png

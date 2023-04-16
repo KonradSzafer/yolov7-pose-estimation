@@ -12,8 +12,17 @@ from utils.general import non_max_suppression_kpt,strip_optimizer,xyxy2xywh
 from utils.plots import output_to_keypoint, plot_skeleton_kpts,colors,plot_one_box_kpt
 
 @torch.no_grad()
-def run(poseweights="yolov7-w6-pose.pt",source="football1.mp4",device='cpu',view_img=False,
-        save_conf=False,line_thickness = 3,hide_labels=False, hide_conf=True):
+def run(
+    poseweights="yolov7-w6-pose.pt",
+    source="football1.mp4",
+    output="football1_out.mp4",
+    device='cpu',
+    view_img=False,
+    save_conf=False,
+    line_thickness=3,
+    hide_labels=False,
+    hide_conf=True
+):
 
     frame_count = 0  #count no of frames
     total_fps = 0  #count total fps
@@ -42,10 +51,13 @@ def run(poseweights="yolov7-w6-pose.pt",source="football1.mp4",device='cpu',view
         
         vid_write_image = letterbox(cap.read()[1], (frame_width), stride=64, auto=True)[0] #init videowriter
         resize_height, resize_width = vid_write_image.shape[:2]
-        out_video_name = f"{source.split('/')[-1].split('.')[0]}"
-        out = cv2.VideoWriter(f"{out_video_name}_keypoint.mp4",
-                            cv2.VideoWriter_fourcc(*'mp4v'), 30,
-                            (resize_width, resize_height))
+
+        output_path = "videos_keypoints/"
+        out = cv2.VideoWriter(
+            output_path + f"{output}_keypoint.mp4",
+            cv2.VideoWriter_fourcc(*'mp4v'), 30,
+            (resize_width, resize_height)
+        )
 
         while(cap.isOpened): #loop until cap opened or video not complete
         
@@ -68,13 +80,14 @@ def run(poseweights="yolov7-w6-pose.pt",source="football1.mp4",device='cpu',view
                 with torch.no_grad():  #get predictions
                     output_data, _ = model(image)
 
-                output_data = non_max_suppression_kpt(output_data,   #Apply non max suppression
-                                            0.25,   # Conf. Threshold.
-                                            0.65, # IoU Threshold.
-                                            nc=model.yaml['nc'], # Number of classes.
-                                            nkpt=model.yaml['nkpt'], # Number of keypoints.
-                                            kpt_label=True)
-            
+                output_data = non_max_suppression_kpt(
+                    output_data,   #Apply non max suppression
+                    0.25,   # Conf. Threshold.
+                    0.65, # IoU Threshold.
+                    nc=model.yaml['nc'], # Number of classes.
+                    nkpt=model.yaml['nkpt'], # Number of keypoints.
+                    kpt_label=True
+                )
                 output = output_to_keypoint(output_data)
 
                 im0 = image[0].permute(1, 2, 0) * 255 # Change format [b, c, h, w] to [h, w, c] for displaying the image.
@@ -130,6 +143,7 @@ def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--poseweights', nargs='+', type=str, default='yolov7-w6-pose.pt', help='model path(s)')
     parser.add_argument('--source', type=str, default='football1.mp4', help='video/0 for webcam') #video source
+    parser.add_argument('--output', type=str, default='football1_out.mp4', help='video/0 for webcam') #video output name
     parser.add_argument('--device', type=str, default='cpu', help='cpu/0,1,2,3(gpu)')   #device arugments
     parser.add_argument('--view-img', action='store_true', help='display results')  #display results
     parser.add_argument('--save-conf', action='store_true', help='save confidences in --save-txt labels') #save confidence in txt writing
